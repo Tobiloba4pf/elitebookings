@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "ChatSession": {
+      "title": "ChatSession",
+      "description": "A chat session between a customer and the admin.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "customerName": { "type": "string" },
+        "lastMessage": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["active", "closed"] }
+      },
+      "required": ["customerEmail", "customerName", "createdAt", "updatedAt", "status"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "A single message in a chat session.",
+      "type": "object",
+      "properties": {
+        "sessionId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderType": { "type": "string", "enum": ["customer", "admin"] },
+        "text": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sessionId", "senderType", "text", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/chat_sessions/{sessionId}": {
+      "schema": "ChatSession",
+      "description": "Collection of chat sessions."
+    },
+    "/chat_sessions/{sessionId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Subcollection of messages for a specific chat session."
+    }
+  }
+}

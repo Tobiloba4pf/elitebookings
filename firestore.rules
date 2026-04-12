@@ -1,0 +1,22 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        ((request.auth.token.email.lower() == "lobeskki7@gmail.com" || request.auth.token.email.lower() == "lobeski7@gmail.com") && request.auth.token.email_verified == true);
+    }
+
+    match /chat_sessions/{sessionId} {
+      allow read, write: if true;
+      
+      match /messages/{messageId} {
+        allow read, write: if true;
+      }
+    }
+  }
+}
