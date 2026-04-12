@@ -402,6 +402,16 @@ export default function App() {
 
     try {
       console.log('Initiating Admin Login Popup...');
+      
+      // Check if we are in an iframe on mobile, which often blocks popups
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+      const isInIframe = window.self !== window.top;
+      
+      if (isMobile && isInIframe) {
+        console.warn('Mobile iframe detected - popups may fail');
+        // We can't easily fix this without redirect, but we can warn the user
+      }
+
       const result = await signInWithPopup(auth, provider);
       const email = result.user.email?.toLowerCase();
       
@@ -424,8 +434,10 @@ export default function App() {
         setLoginError('Popup Blocked: Please allow popups for this site in your browser settings, then try again.');
       } else if (error.code === 'auth/cancelled-popup-request') {
         setLoginError('Login cancelled. Please try again.');
+      } else if (error.code === 'auth/internal-error') {
+        setLoginError('Network Error: Please check your internet connection and try again.');
       } else {
-        setLoginError('Login failed. Please ensure you are using a supported browser.');
+        setLoginError(`Login failed: ${error.message || 'Unknown error'}. (Code: ${error.code || 'unknown'})`);
       }
     } finally {
       setIsLoggingIn(false);
@@ -1305,6 +1317,9 @@ export default function App() {
                   <h2 className="text-3xl font-serif text-charcoal mb-4">Concierge Access</h2>
                   <p className="text-charcoal/60 text-sm mb-10 leading-relaxed">
                     Please sign in with your authorized Google account to access the luxury concierge dashboard.
+                    <span className="block mt-2 text-[10px] text-gold font-bold italic">
+                      Mobile users: If the popup doesn't appear, ensure you are using Chrome or Safari and have disabled "Block Pop-ups" in your browser settings.
+                    </span>
                   </p>
 
                   {loginError && (
